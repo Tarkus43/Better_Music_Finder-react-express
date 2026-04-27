@@ -1,5 +1,12 @@
 import sqlite3 from 'sqlite3';
 const sql3 = sqlite3.verbose();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Resolve __dirname for ESM and point to the server/database.db file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbPath = path.join(__dirname, '..', 'database.db');
 
 const connected = (err) => {
     if (err) {
@@ -9,7 +16,7 @@ const connected = (err) => {
     }
 };
 
-const DB = new sql3.Database('./database.db', sql3.OPEN_READWRITE | sql3.OPEN_CREATE, connected);
+const DB = new sql3.Database(dbPath, sql3.OPEN_READWRITE | sql3.OPEN_CREATE, connected);
 
 DB.run("PRAGMA foreign_keys = ON" , (err) => {
     if (err) {
