@@ -1,10 +1,10 @@
 import DB from "../connect.js";
 
-const createGenre = (genreData, callback) => {
-    const { name, description, parent_id } = genreData;
+async function createGenre(req, res) {
+    const { name, description, parent_id } = req.body;
 
     if (!name || !description) {
-        return callback(new Error('Name and description are required fields.'));
+        return res.status(400).json({ error: 'Name and description are required fields.' });
     }
 
     const sql = `INSERT INTO genres (name, description, parent_id) VALUES (?, ?, ?)`;
@@ -18,3 +18,4 @@ const createGenre = (genreData, callback) => {
     });
 };
 
+export default createGenre;
