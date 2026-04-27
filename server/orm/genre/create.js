@@ -1,8 +1,14 @@
 import DB from "../connect.js";
+import validateGenre from "../../utils/validateGenre.js";
 
 async function createGenre(req, res) {
     try {
         const { name, description, parent_id } = req.body;
+
+        const isValid = validateGenre(req.body);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid genre data.' });
+        }
 
     if (!name || !description) {
         return res.status(400).json({ error: 'Name and description are required fields.' });
