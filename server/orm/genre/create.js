@@ -18,4 +18,3 @@ const createGenre = (genreData, callback) => {
     });
 };
 
-export default createGenre;
