@@ -18,14 +18,4 @@ const createGenre = (genreData, callback) => {
     });
 };
 
-createGenre({
-    name: 'Rock',
-    description: 'A genre of popular music that originated in the 1950s.',
-    parent_id: null
-}, (err, genre) => {
-    if (err) {
-        console.error('Error:', err.message);
-    } else {
-        console.log('Created Genre:', genre);
-    }
-});
+export default createGenre;
