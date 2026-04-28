@@ -1,11 +1,23 @@
 import DB from "../connect";
 
 async function createSong(req, res){
-  const { title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood, is_favorite} = req.body
+    try {
+        const { title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood } = req.body;
 
-  try {
-    const sql = "INSERT INTO tracks"
-  } catch (error) {
-    
-  }
+        const sql = `INSERT INTO tracks (title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        DB.run(sql, [title, artist, genre_id, duration, release_date, album, language || null, is_lyrics_available || 0, popularity || 1, tempo || 120, is_explicit || 0, mood || null], function(err) {
+            if (err) {
+                console.error('Error creating track:', err.message);
+                res.status(500).json({ error: 'Failed to create track.' });
+                return;
+            }
+            console.log(`Track created with ID: ${this.lastID}`);
+            res.status(201).json({ id: this.lastID, title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood });
+        });
+    } catch (error) {
+        console.error('Error creating track:', error.message);
+        res.status(500).json({ error: 'Failed to create track.' });
+    }
 }
+
+export default createSong
