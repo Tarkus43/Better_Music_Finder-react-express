@@ -1,8 +1,17 @@
 import DB from "../connect";
+import validateTrack from "../../utils/validateTrack";
 
 async function createSong(req, res){
     try {
         const { title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood } = req.body;
+        const isValid = validateTrack(req.body);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid track data.' });
+        }
+
+        if (!title || !artist || !genre_id || !duration || !release_date || !album) {
+            return res.status(400).json({ error: 'Title, artist, genre_id, duration, release_date, and album are required fields.' });
+        }
 
         const sql = `INSERT INTO tracks (title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         DB.run(sql, [title, artist, genre_id, duration, release_date, album, language || null, is_lyrics_available || 0, popularity || 1, tempo || 120, is_explicit || 0, mood || null], function(err) {
