@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3';
 const sql3 = sqlite3.verbose();
 import path from 'path';
 import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 
 // Resolve __dirname for ESM and point to the server/database.db file
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +13,7 @@ const connected = (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
     } else {
-        console.log('Connected to the SQLite database.');
+        console.log(chalk.green('Connected to the SQLite database.'));
     }
 };
 
@@ -22,7 +23,7 @@ DB.run("PRAGMA foreign_keys = ON" , (err) => {
     if (err) {
         console.error('Error enabling foreign keys:', err.message);
     } else {
-        console.log('Foreign key support enabled.');
+        console.log(chalk.green('Foreign key support enabled.'));
     }
 });
 
