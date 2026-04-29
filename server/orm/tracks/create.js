@@ -4,22 +4,35 @@ import validateTrack from "../../utils/validateTrack.js";
 async function createTrack(req, res){
     try {
         const { title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood } = req.body;
-        const normalizedTitle = typeof title === "string" ? title.trim() : title;
-        const normalizedArtist = typeof artist === "string" ? artist.trim() : artist;
-        const normalizedAlbum = typeof album === "string" ? album.trim() : album;
+        const normalizeText = (value) => (typeof value === "string" ? value.trim().toLowerCase() : value);
+        const normalizedTitle = normalizeText(title);
+        const normalizedArtist = normalizeText(artist);
+        const normalizedAlbum = normalizeText(album);
+        const normalizedReleaseDate = normalizeText(release_date);
+        const normalizedLanguage = normalizeText(language);
+        const normalizedMood = normalizeText(mood);
+        const normalizedPayload = {
+            ...req.body,
+            title: normalizedTitle,
+            artist: normalizedArtist,
+            album: normalizedAlbum,
+            release_date: normalizedReleaseDate,
+            language: normalizedLanguage,
+            mood: normalizedMood
+        };
 
-        const { valid, errors } = validateTrack(req.body);
+        const { valid, errors } = validateTrack(normalizedPayload);
         if (!valid) {
             return res.status(400).json({ errors });
         }
 
         // Coerce/normalize values for DB
-        const lang = language ?? null;
+        const lang = normalizedLanguage ?? null;
         const lyricsFlag = is_lyrics_available ? 1 : 0;
         const pop = popularity ?? 1;
         const t = tempo ?? 120;
         const explicitFlag = is_explicit ? 1 : 0;
-        const moodVal = mood ?? null;
+        const moodVal = normalizedMood ?? null;
 
         const duplicateCheckSql = `
             SELECT id
@@ -40,7 +53,7 @@ async function createTrack(req, res){
             }
 
             const sql = `INSERT INTO tracks (title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const params = [normalizedTitle, normalizedArtist, genre_id, duration, release_date, normalizedAlbum, lang, lyricsFlag, pop, t, explicitFlag, moodVal];
+            const params = [normalizedTitle, normalizedArtist, genre_id, duration, normalizedReleaseDate, normalizedAlbum, lang, lyricsFlag, pop, t, explicitFlag, moodVal];
 
             DB.run(sql, params, function(err) {
                 if (err) {
@@ -54,7 +67,7 @@ async function createTrack(req, res){
                     artist: normalizedArtist,
                     genre_id,
                     duration,
-                    release_date,
+                    release_date: normalizedReleaseDate,
                     album: normalizedAlbum,
                     language: lang,
                     is_lyrics_available: Boolean(lyricsFlag),

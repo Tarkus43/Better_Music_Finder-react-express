@@ -4,14 +4,16 @@ import validateGenre from "../../utils/validateGenre.js";
 async function createGenre(req, res) {
     try {
         const { name, description, parent_id } = req.body;
-        const normalizedName = typeof name === "string" ? name.trim() : name;
+        const normalizedName = typeof name === "string" ? name.trim().toLowerCase() : name;
+        const normalizedDescription = typeof description === "string" ? description.trim().toLowerCase() : description;
+        const normalizedPayload = { ...req.body, name: normalizedName, description: normalizedDescription };
 
-        const { valid, errors } = validateGenre(req.body);
+        const { valid, errors } = validateGenre(normalizedPayload);
         if (!valid) {
             return res.status(400).json({ errors });
         }
 
-        if (!normalizedName || !description) {
+        if (!normalizedName || !normalizedDescription) {
             return res.status(400).json({ error: 'Name and description are required fields.' });
         }
 
@@ -28,7 +30,7 @@ async function createGenre(req, res) {
 
             const sql = `INSERT INTO genres (name, description, parent_id) VALUES (?, ?, ?)`;
             const pid = parent_id ?? null;
-            DB.run(sql, [normalizedName, description, pid], function(err) {
+            DB.run(sql, [normalizedName, normalizedDescription, pid], function(err) {
             if (err) {
                 console.error('Error creating genre:', err.message);
                 if (err.message?.includes("UNIQUE constraint failed")) {
@@ -37,7 +39,7 @@ async function createGenre(req, res) {
                 return res.status(500).json({ error: 'Failed to create genre.', dbError: err.message });
             }
             console.log(`Genre created with ID: ${this.lastID}`);
-            return res.status(201).json({ id: this.lastID, name: normalizedName, description, parent_id: pid });
+            return res.status(201).json({ id: this.lastID, name: normalizedName, description: normalizedDescription, parent_id: pid });
         });
         });
     } catch (error) {
