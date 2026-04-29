@@ -13,6 +13,21 @@ const genreSchema = {
     additionalProperties: false
 };
 
-const validateGenre = ajvInstance.compile(genreSchema);
+const validate = ajvInstance.compile(genreSchema);
+
+function validateGenre(data) {
+    const valid = validate(data);
+    if (valid) return { valid: true, errors: null };
+
+    const errors = (validate.errors || []).map(err => ({
+        instancePath: err.instancePath,
+        schemaPath: err.schemaPath,
+        keyword: err.keyword,
+        message: err.message,
+        params: err.params
+    }));
+
+    return { valid: false, errors };
+}
 
 export default validateGenre;
