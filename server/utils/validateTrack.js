@@ -9,9 +9,9 @@ const trackSchema = {
         artist: { type: "string", minLength: 1 },
         genre_id: { type: "integer" },
         duration: { type: "integer", minimum: 0 },
-        release_date: { type: "string", format: "date" },
+        release_date: { type: "string", pattern: "(19|20)\\d{2}$"},
         album: { type: "string" },
-        language: { type: "string" },
+        language: { type: ["string", "null"] },
         is_lyrics_available: { type: "boolean" },
         popularity: { type: "integer", minimum: 1 },
         tempo: { type: "integer", minimum: 1 },
@@ -23,6 +23,21 @@ const trackSchema = {
     additionalProperties: false
 };
 
-const validateTrack = ajvInstance.compile(trackSchema);
+const validate = ajvInstance.compile(trackSchema);
+
+function validateTrack(data) {
+    const valid = validate(data);
+    if (valid) return { valid: true, errors: null };
+
+    const errors = (validate.errors || []).map(err => ({
+        instancePath: err.instancePath,
+        schemaPath: err.schemaPath,
+        keyword: err.keyword,
+        message: err.message,
+        params: err.params
+    }));
+
+    return { valid: false, errors };
+}
 
 export default validateTrack;

@@ -1,27 +1,47 @@
-import DB from "../connect";
-import validateTrack from "../../utils/validateTrack";
+import DB from "../connect.js";
+import validateTrack from "../../utils/validateTrack.js";
 
-async function createSong(req, res){
+async function createTrack(req, res){
     try {
         const { title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood } = req.body;
-        const isValid = validateTrack(req.body);
-        if (!isValid) {
-            return res.status(400).json({ error: 'Invalid track data.' });
+
+        const { valid, errors } = validateTrack(req.body);
+        if (!valid) {
+            return res.status(400).json({ errors });
         }
 
-        if (!title || !artist || !genre_id || !duration || !release_date || !album || !language || !is_lyrics_available || !popularity || !tempo || !is_explicit || !mood) {
-            return res.status(400).json({ error: 'Title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, and mood are required fields.' });
-        }
+        // Coerce/normalize values for DB
+        const lang = language ?? null;
+        const lyricsFlag = is_lyrics_available ? 1 : 0;
+        const pop = popularity ?? 1;
+        const t = tempo ?? 120;
+        const explicitFlag = is_explicit ? 1 : 0;
+        const moodVal = mood ?? null;
 
         const sql = `INSERT INTO tracks (title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        DB.run(sql, [title, artist, genre_id, duration, release_date, album, language || null, is_lyrics_available || 0, popularity || 1, tempo || 120, is_explicit || 0, mood || null], function(err) {
+        const params = [title, artist, genre_id, duration, release_date, album, lang, lyricsFlag, pop, t, explicitFlag, moodVal];
+
+        DB.run(sql, params, function(err) {
             if (err) {
                 console.error('Error creating track:', err.message);
-                res.status(500).json({ error: 'Failed to create track.' });
-                return;
+                return res.status(500).json({ error: 'Failed to create track.', dbError: err.message });
             }
             console.log(`Track created with ID: ${this.lastID}`);
-            res.status(201).json({ id: this.lastID, title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood });
+            return res.status(201).json({
+                id: this.lastID,
+                title,
+                artist,
+                genre_id,
+                duration,
+                release_date,
+                album,
+                language: lang,
+                is_lyrics_available: Boolean(lyricsFlag),
+                popularity: pop,
+                tempo: t,
+                is_explicit: Boolean(explicitFlag),
+                mood: moodVal
+            });
         });
     } catch (error) {
         console.error('Error creating track:', error.message);
@@ -29,4 +49,4 @@ async function createSong(req, res){
     }
 }
 
-export default createSong
+export default createTrack;
