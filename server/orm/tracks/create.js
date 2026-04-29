@@ -9,8 +9,8 @@ async function createSong(req, res){
             return res.status(400).json({ error: 'Invalid track data.' });
         }
 
-        if (!title || !artist || !genre_id || !duration || !release_date || !album) {
-            return res.status(400).json({ error: 'Title, artist, genre_id, duration, release_date, and album are required fields.' });
+        if (!title || !artist || !genre_id || !duration || !release_date || !album || !language || !is_lyrics_available || !popularity || !tempo || !is_explicit || !mood) {
+            return res.status(400).json({ error: 'Title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, and mood are required fields.' });
         }
 
         const sql = `INSERT INTO tracks (title, artist, genre_id, duration, release_date, album, language, is_lyrics_available, popularity, tempo, is_explicit, mood) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
