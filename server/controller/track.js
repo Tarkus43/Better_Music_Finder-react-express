@@ -1,6 +1,6 @@
 import router from "express";
 import createTrack from "../orm/tracks/create.js";
-import getTracks from "../orm/tracks/get.js";
+import getTracks from "../orm/tracks/list.js";
 import toggleTrack from "../orm/tracks/toggle.js";
 import deleteTrack from "../orm/tracks/delete.js";
 
