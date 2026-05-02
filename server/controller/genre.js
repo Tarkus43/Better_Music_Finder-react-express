@@ -10,7 +10,7 @@ const genreRouter = router.Router();
 genreRouter.post("/", createGenre);
 genreRouter.get("/", listGenres);
 genreRouter.get("/:id", getGenre);
-genreRouter.put("/:id", updateGenre);
+genreRouter.patch("/:id", updateGenre);
 genreRouter.delete("/:id", deleteGenre);
 
 export default genreRouter;
