@@ -12,6 +12,6 @@ trackRouter.post("/", createTrack);
 trackRouter.get("/", getTracks);
 trackRouter.get("/:id", getTrack);
 trackRouter.post("/:id", updateTrack);
-trackRouter.post("/:id/favorite", toggleTrack);
+trackRouter.patch("/:id/favorite", toggleTrack);
 trackRouter.delete("/:id", deleteTrack);
 export default trackRouter;
