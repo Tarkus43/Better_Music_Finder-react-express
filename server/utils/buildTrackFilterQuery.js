@@ -139,4 +139,9 @@ function buildTrackFilterQuery(query) {
         whereSql: whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "",
         params,
         sortBy,
-        sortOrder,/
+        sortOrder,
+        errors
+    };
+}
+
+export default buildTrackFilterQuery;
