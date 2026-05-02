@@ -1,9 +1,9 @@
 import router from "express";
-import createTrack from "../orm/tracks/create.js";
-import getTracks from "../orm/tracks/list.js";
-import getTrack from "../orm/tracks/get.js";
-import toggleTrack from "../orm/tracks/toggle.js";
-import deleteTrack from "../orm/tracks/delete.js";
+import createTrack from "../dao/tracks/create.js";
+import getTracks from "../dao/tracks/list.js";
+import getTrack from "../dao/tracks/get.js";
+import toggleTrack from "../dao/tracks/toggle.js";
+import deleteTrack from "../dao/tracks/delete.js";
 
 const trackRouter = router.Router();
 
