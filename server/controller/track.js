@@ -11,7 +11,7 @@ const trackRouter = router.Router();
 trackRouter.post("/", createTrack);
 trackRouter.get("/", getTracks);
 trackRouter.get("/:id", getTrack);
-trackRouter.post("/:id", updateTrack);
+trackRouter.patch("/:id", updateTrack);
 trackRouter.patch("/:id/favorite", toggleTrack);
 trackRouter.delete("/:id", deleteTrack);
 export default trackRouter;
