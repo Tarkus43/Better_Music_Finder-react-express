@@ -1,0 +1,9 @@
+/* Load after bootstrap/dist/css — mockup-style primary and page feel */
+:root {
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+}
+
+body {
+  min-height: 100vh;
+}
