@@ -28,6 +28,7 @@ export default function AddSongModal({
   const [popularity, setPopularity] = useState("50")
   const [isExplicit, setIsExplicit] = useState(false)
   const [lyricsAvailable, setLyricsAvailable] = useState(true)
+  const [isFavorite, setIsFavorite] = useState(false)
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
 
@@ -118,7 +119,7 @@ export default function AddSongModal({
         tempo: tempoResult.value,
         is_explicit: isExplicit,
         mood: normalizedMood,
-        is_favorite: false,
+        is_favorite: isFavorite,
       })
       await onCreated?.()
       setTitle("")
@@ -132,6 +133,7 @@ export default function AddSongModal({
       setPopularity("50")
       setIsExplicit(false)
       setLyricsAvailable(true)
+      setIsFavorite(false)
       closeModal()
     } catch (err) {
       const msg =
@@ -326,6 +328,18 @@ export default function AddSongModal({
                 />
                 <label className="form-check-label" htmlFor="song-lyrics">
                   Lyrics available
+                </label>
+              </div>
+              <div className="form-check">
+                <input
+                  id="song-favorite"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={isFavorite}
+                  onChange={(e) => setIsFavorite(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="song-favorite">
+                  Favorite
                 </label>
               </div>
             </div>
