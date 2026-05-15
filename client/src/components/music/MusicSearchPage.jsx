@@ -23,8 +23,6 @@ const defaultFilters = {
   explicit: "any",
 }
 
-const FILTER_DEBOUNCE_MS = 400
-
 function SearchStarIcon() {
   return (
     <svg
@@ -47,6 +45,7 @@ export default function MusicSearchPage() {
   const [searchInput, setSearchInput] = useState("")
   const [committedSearch, setCommittedSearch] = useState("")
   const [filters, setFilters] = useState(defaultFilters)
+  const [committedFilters, setCommittedFilters] = useState(defaultFilters)
   const [showAdvanced, setShowAdvanced] = useState(true)
   const [genres, setGenres] = useState([])
   const [moodOptions, setMoodOptions] = useState([])
@@ -111,14 +110,12 @@ export default function MusicSearchPage() {
   }, [reloadGenresAndMeta])
 
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      void fetchTrackList(committedSearch, filters)
-    }, FILTER_DEBOUNCE_MS)
-    return () => window.clearTimeout(id)
-  }, [filters, committedSearch, fetchTrackList])
+    void fetchTrackList(committedSearch, committedFilters)
+  }, [committedSearch, committedFilters, fetchTrackList])
 
   const handleSearchClick = () => {
     setCommittedSearch(searchInput.trim())
+    setCommittedFilters({ ...filters })
   }
 
   const handleResetFilters = () => {
@@ -287,7 +284,7 @@ export default function MusicSearchPage() {
         genres={genres}
         onCreated={async () => {
           await reloadGenresAndMeta()
-          await fetchTrackList(committedSearch, filters)
+          await fetchTrackList(committedSearch, committedFilters)
         }}
       />
     </div>
