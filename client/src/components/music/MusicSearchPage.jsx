@@ -26,24 +26,6 @@ const defaultFilters = {
   explicit: "any",
 }
 
-function SearchStarIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      className="text-secondary"
-      aria-hidden
-    >
-      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
-    </svg>
-  )
-}
-
 export default function MusicSearchPage() {
   const [searchInput, setSearchInput] = useState("")
   const [committedSearch, setCommittedSearch] = useState("")
@@ -190,16 +172,10 @@ export default function MusicSearchPage() {
           ) : null}
 
           <div className="d-flex flex-column flex-md-row gap-2 mb-3">
-            <div className="position-relative flex-grow-1">
-              <span
-                className="position-absolute top-50 start-0 translate-middle-y ps-3 d-flex align-items-center"
-                style={{ zIndex: 1 }}
-              >
-                <SearchStarIcon />
-              </span>
+            <div className="flex-grow-1">
               <input
                 type="text"
-                className="form-control rounded-pill border-secondary-subtle py-2 ps-5"
+                className="form-control rounded-pill border-secondary-subtle py-2 px-3"
                 placeholder="Search by title (e.g. giant steps)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
