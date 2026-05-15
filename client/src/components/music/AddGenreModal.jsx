@@ -6,9 +6,16 @@ import {
 } from "../../utils/formInput.js"
 import Modal from "./Modal.jsx"
 
-export default function AddGenreModal({ show, onClose, onOpenChange, onCreated }) {
+export default function AddGenreModal({
+  show,
+  onClose,
+  onOpenChange,
+  onCreated,
+  genres = [],
+}) {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [parentId, setParentId] = useState("")
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
 
@@ -42,9 +49,11 @@ export default function AddGenreModal({ show, onClose, onOpenChange, onCreated }
       await createGenre({
         name: normalizedName,
         description: normalizedDescription,
+        parent_id: parentId ? Number.parseInt(parentId, 10) : null,
       })
       setName("")
       setDescription("")
+      setParentId("")
       await onCreated?.()
       closeModal()
     } catch (err) {
@@ -82,6 +91,27 @@ export default function AddGenreModal({ show, onClose, onOpenChange, onCreated }
             />
             <div className="form-text text-muted">
               Lowercase letters, numbers, spaces, hyphens, underscores.
+            </div>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="genre-parent" className="form-label">
+              Parent genre
+            </label>
+            <select
+              id="genre-parent"
+              className="form-select"
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+            >
+              <option value="">None (top-level)</option>
+              {genres.map((g) => (
+                <option key={g.id} value={String(g.id)}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+            <div className="form-text text-muted">
+              Optional. Choose a parent to nest this genre under it.
             </div>
           </div>
           <div>

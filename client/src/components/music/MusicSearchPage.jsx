@@ -351,6 +351,7 @@ export default function MusicSearchPage() {
       <AddGenreModal
         show={showGenreModal}
         onOpenChange={setShowGenreModal}
+        genres={genres}
         onCreated={reloadGenresAndMeta}
       />
       <AddSongModal
