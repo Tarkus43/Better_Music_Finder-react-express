@@ -47,7 +47,7 @@ function SearchStarIcon() {
 }
 
 export default function MusicSearchPage() {
-  const [searchInput, setSearchInput] = useState("beatles")
+  const [searchInput, setSearchInput] = useState("")
   const [appliedFilters, setAppliedFilters] = useState(defaultFilters)
   const [draftFilters, setDraftFilters] = useState(defaultFilters)
   const [showAdvanced, setShowAdvanced] = useState(true)
@@ -142,7 +142,7 @@ export default function MusicSearchPage() {
       }
 
       if (!cancelled) {
-        await fetchTrackList("beatles", defaultFilters)
+        await fetchTrackList("", defaultFilters)
       }
     }
 
@@ -220,7 +220,7 @@ export default function MusicSearchPage() {
               </span>
               <Form.Control
                 className="rounded-pill border-secondary-subtle py-2 ps-5"
-                placeholder="Search songs"
+                placeholder="Search by title (e.g. giant steps)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -299,8 +299,12 @@ export default function MusicSearchPage() {
             <p className="text-muted small">Loading…</p>
           ) : null}
 
-          {!loading && tracks.length === 0 ? (
-            <p className="text-muted small">No tracks match your search.</p>
+          {!loading && !listError && tracks.length === 0 ? (
+            <p className="text-muted small">
+              {searchInput.trim()
+                ? "No tracks match your search. Try another title or clear the search box and click Search."
+                : "No tracks in the database yet. Add a genre, then add a song."}
+            </p>
           ) : null}
 
           {tracks.map((track) => (
