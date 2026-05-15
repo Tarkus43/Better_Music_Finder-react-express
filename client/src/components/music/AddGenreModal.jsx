@@ -1,16 +1,28 @@
 import { useState } from "react"
 import { createGenre } from "../../api/tracks.js"
+import {
+  lowercaseTextInput,
+  normalizeTextField,
+} from "../../utils/formInput.js"
 import Modal from "./Modal.jsx"
 
-export default function AddGenreModal({ show, onClose, onCreated }) {
+export default function AddGenreModal({ show, onClose, onOpenChange, onCreated }) {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
 
-  const handleClose = () => {
+  const closeModal = () => {
     setError("")
-    onClose()
+    if (typeof onClose === "function") {
+      onClose()
+    } else if (typeof onOpenChange === "function") {
+      onOpenChange(false)
+    }
+  }
+
+  const onTextChange = (setter) => (e) => {
+    setter(lowercaseTextInput(e.target.value))
   }
 
   const handleSubmit = async (e) => {
@@ -18,14 +30,23 @@ export default function AddGenreModal({ show, onClose, onCreated }) {
     setError("")
     setSaving(true)
     try {
+      const normalizedName = normalizeTextField(name)
+      const normalizedDescription = normalizeTextField(description)
+
+      if (!normalizedName || !normalizedDescription) {
+        setError("Name and description are required.")
+        setSaving(false)
+        return
+      }
+
       await createGenre({
-        name: name.trim().toLowerCase(),
-        description: description.trim().toLowerCase(),
+        name: normalizedName,
+        description: normalizedDescription,
       })
       setName("")
       setDescription("")
       await onCreated?.()
-      handleClose()
+      closeModal()
     } catch (err) {
       const msg =
         err.errors?.map((x) => x.message).join("; ") || err.message || "Failed"
@@ -36,7 +57,7 @@ export default function AddGenreModal({ show, onClose, onCreated }) {
   }
 
   return (
-    <Modal show={show} onClose={handleClose} title="Add genre">
+    <Modal show={show} onClose={closeModal} title="Add genre">
       <form onSubmit={handleSubmit}>
         <div className="modal-body">
           {error ? (
@@ -53,7 +74,7 @@ export default function AddGenreModal({ show, onClose, onCreated }) {
               type="text"
               className="form-control"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={onTextChange(setName)}
               placeholder="e.g. indie_rock"
               required
               pattern="[a-z0-9\s_\-]+"
@@ -72,7 +93,7 @@ export default function AddGenreModal({ show, onClose, onCreated }) {
               className="form-control"
               rows={2}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={onTextChange(setDescription)}
               placeholder="Short description"
               required
             />
@@ -82,7 +103,7 @@ export default function AddGenreModal({ show, onClose, onCreated }) {
           <button
             type="button"
             className="btn btn-outline-secondary"
-            onClick={handleClose}
+            onClick={closeModal}
           >
             Cancel
           </button>

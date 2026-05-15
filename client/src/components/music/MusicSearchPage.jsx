@@ -278,12 +278,12 @@ export default function MusicSearchPage() {
 
       <AddGenreModal
         show={showGenreModal}
-        onClose={() => setShowGenreModal(false)}
+        onOpenChange={setShowGenreModal}
         onCreated={reloadGenresAndMeta}
       />
       <AddSongModal
         show={showSongModal}
-        onClose={() => setShowSongModal(false)}
+        onOpenChange={setShowSongModal}
         genres={genres}
         onCreated={async () => {
           await reloadGenresAndMeta()

@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react"
 import { createTrack } from "../../api/tracks.js"
+import {
+  isDigitsOnly,
+  lowercaseTextInput,
+  normalizeTextField,
+  parseIntegerField,
+  sanitizeDigitsOnly,
+} from "../../utils/formInput.js"
 import Modal from "./Modal.jsx"
 
-export default function AddSongModal({ show, onClose, genres, onCreated }) {
+export default function AddSongModal({
+  show,
+  onClose,
+  onOpenChange,
+  genres,
+  onCreated,
+}) {
   const [title, setTitle] = useState("")
   const [artist, setArtist] = useState("")
   const [genreId, setGenreId] = useState("")
   const [album, setAlbum] = useState("single")
   const [year, setYear] = useState("2020")
-  const [duration, setDuration] = useState(200)
+  const [duration, setDuration] = useState("200")
   const [language, setLanguage] = useState("english")
   const [mood, setMood] = useState("happy")
-  const [tempo, setTempo] = useState(100)
-  const [popularity, setPopularity] = useState(50)
+  const [tempo, setTempo] = useState("100")
+  const [popularity, setPopularity] = useState("50")
   const [isExplicit, setIsExplicit] = useState(false)
   const [lyricsAvailable, setLyricsAvailable] = useState(true)
   const [error, setError] = useState("")
@@ -24,9 +37,21 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
     }
   }, [show, genres, genreId])
 
-  const handleClose = () => {
+  const closeModal = () => {
     setError("")
-    onClose()
+    if (typeof onClose === "function") {
+      onClose()
+    } else if (typeof onOpenChange === "function") {
+      onOpenChange(false)
+    }
+  }
+
+  const onTextChange = (setter) => (e) => {
+    setter(lowercaseTextInput(e.target.value))
+  }
+
+  const onDigitsChange = (setter) => (e) => {
+    setter(sanitizeDigitsOnly(e.target.value))
   }
 
   const handleSubmit = async (e) => {
@@ -34,25 +59,65 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
     setError("")
     setSaving(true)
     try {
-      const y = String(year).trim()
-      if (!/^(19|20)\d{2}$/.test(y)) {
-        setError("Year must be a four-digit year (1900–2099).")
+      const normalizedTitle = normalizeTextField(title)
+      const normalizedArtist = normalizeTextField(artist)
+      const normalizedAlbum = normalizeTextField(album)
+      const normalizedLanguage = normalizeTextField(language)
+      const normalizedMood = normalizeTextField(mood)
+
+      if (!normalizedTitle || !normalizedArtist || !normalizedAlbum) {
+        setError("Title, artist, and album are required.")
         setSaving(false)
         return
       }
+
+      const y = sanitizeDigitsOnly(year)
+      if (!isDigitsOnly(y) || !/^(19|20)\d{2}$/.test(y)) {
+        setError("Year must be a four-digit year (1900–2099), digits only.")
+        setSaving(false)
+        return
+      }
+
+      const durationResult = parseIntegerField(duration, {
+        label: "Duration",
+        min: 1,
+      })
+      if (!durationResult.ok) {
+        setError(durationResult.error)
+        setSaving(false)
+        return
+      }
+
+      const tempoResult = parseIntegerField(tempo, { label: "BPM", min: 1 })
+      if (!tempoResult.ok) {
+        setError(tempoResult.error)
+        setSaving(false)
+        return
+      }
+
+      const popularityResult = parseIntegerField(popularity, {
+        label: "Popularity",
+        min: 1,
+      })
+      if (!popularityResult.ok) {
+        setError(popularityResult.error)
+        setSaving(false)
+        return
+      }
+
       await createTrack({
-        title: title.trim(),
-        artist: artist.trim(),
+        title: normalizedTitle,
+        artist: normalizedArtist,
         genre_id: Number.parseInt(genreId, 10),
-        duration: Number(duration),
+        duration: durationResult.value,
         release_date: y,
-        album: album.trim(),
-        language: language.trim(),
+        album: normalizedAlbum,
+        language: normalizedLanguage,
         is_lyrics_available: lyricsAvailable,
-        popularity: Number(popularity),
-        tempo: Number(tempo),
+        popularity: popularityResult.value,
+        tempo: tempoResult.value,
         is_explicit: isExplicit,
-        mood: mood.trim(),
+        mood: normalizedMood,
         is_favorite: false,
       })
       await onCreated?.()
@@ -60,14 +125,14 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
       setArtist("")
       setAlbum("single")
       setYear("2020")
-      setDuration(200)
+      setDuration("200")
       setLanguage("english")
       setMood("happy")
-      setTempo(100)
-      setPopularity(50)
+      setTempo("100")
+      setPopularity("50")
       setIsExplicit(false)
       setLyricsAvailable(true)
-      handleClose()
+      closeModal()
     } catch (err) {
       const msg =
         err.errors?.map((x) => `${x.instancePath} ${x.message}`).join("; ") ||
@@ -80,7 +145,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
   }
 
   return (
-    <Modal show={show} onClose={handleClose} title="Add song" size="lg">
+    <Modal show={show} onClose={closeModal} title="Add song" size="lg">
       <form onSubmit={handleSubmit}>
         <div className="modal-body">
           {!genres.length ? (
@@ -103,7 +168,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={onTextChange(setTitle)}
                 required
               />
             </div>
@@ -116,7 +181,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={artist}
-                onChange={(e) => setArtist(e.target.value)}
+                onChange={onTextChange(setArtist)}
                 required
               />
             </div>
@@ -147,9 +212,11 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={year}
-                onChange={(e) => setYear(e.target.value)}
+                onChange={onDigitsChange(setYear)}
                 required
                 maxLength={4}
+                inputMode="numeric"
+                pattern="\d*"
               />
             </div>
             <div className="col-md-4">
@@ -161,7 +228,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={album}
-                onChange={(e) => setAlbum(e.target.value)}
+                onChange={onTextChange(setAlbum)}
                 required
               />
             </div>
@@ -171,12 +238,13 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
               </label>
               <input
                 id="song-duration"
-                type="number"
+                type="text"
                 className="form-control"
-                min={1}
                 value={duration}
-                onChange={(e) => setDuration(e.target.value)}
+                onChange={onDigitsChange(setDuration)}
                 required
+                inputMode="numeric"
+                pattern="\d*"
               />
             </div>
             <div className="col-md-4">
@@ -185,12 +253,13 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
               </label>
               <input
                 id="song-tempo"
-                type="number"
+                type="text"
                 className="form-control"
-                min={1}
                 value={tempo}
-                onChange={(e) => setTempo(e.target.value)}
+                onChange={onDigitsChange(setTempo)}
                 required
+                inputMode="numeric"
+                pattern="\d*"
               />
             </div>
             <div className="col-md-4">
@@ -199,12 +268,13 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
               </label>
               <input
                 id="song-popularity"
-                type="number"
+                type="text"
                 className="form-control"
-                min={1}
                 value={popularity}
-                onChange={(e) => setPopularity(e.target.value)}
+                onChange={onDigitsChange(setPopularity)}
                 required
+                inputMode="numeric"
+                pattern="\d*"
               />
             </div>
             <div className="col-md-6">
@@ -216,7 +286,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={onTextChange(setLanguage)}
                 required
               />
             </div>
@@ -229,7 +299,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
                 type="text"
                 className="form-control"
                 value={mood}
-                onChange={(e) => setMood(e.target.value)}
+                onChange={onTextChange(setMood)}
                 required
               />
             </div>
@@ -265,7 +335,7 @@ export default function AddSongModal({ show, onClose, genres, onCreated }) {
           <button
             type="button"
             className="btn btn-outline-secondary"
-            onClick={handleClose}
+            onClick={closeModal}
           >
             Cancel
           </button>
