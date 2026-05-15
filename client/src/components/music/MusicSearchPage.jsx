@@ -10,6 +10,8 @@ import AddSongModal from "./AddSongModal.jsx"
 import AdvancedFilters from "./AdvancedFilters.jsx"
 import SongCard from "./SongCard.jsx"
 
+const PAGE_SIZE = 4
+
 const defaultFilters = {
   genre: "",
   artist: "",
@@ -58,6 +60,7 @@ export default function MusicSearchPage() {
   const [favoriteBusyId, setFavoriteBusyId] = useState(null)
   const [showGenreModal, setShowGenreModal] = useState(false)
   const [showSongModal, setShowSongModal] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const genreNameById = useMemo(() => {
     const m = {}
@@ -66,6 +69,26 @@ export default function MusicSearchPage() {
     }
     return m
   }, [genres])
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(tracks.length / PAGE_SIZE)),
+    [tracks.length],
+  )
+
+  const paginatedTracks = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return tracks.slice(start, start + PAGE_SIZE)
+  }, [tracks, currentPage])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [committedSearch, committedFilters])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const fetchTrackList = useCallback(async (searchStr, filterState) => {
     setLoading(true)
@@ -258,7 +281,7 @@ export default function MusicSearchPage() {
             </p>
           ) : null}
 
-          {tracks.map((track) => (
+          {paginatedTracks.map((track) => (
             <SongCard
               key={track.id}
               track={track}
@@ -270,6 +293,58 @@ export default function MusicSearchPage() {
               onToggleFavorite={() => handleToggleFavorite(track.id)}
             />
           ))}
+
+          {!loading && tracks.length > PAGE_SIZE ? (
+            <nav aria-label="Search results pages" className="mt-3">
+              <ul className="pagination pagination-sm justify-content-center mb-0">
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="page-link"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <li
+                      key={page}
+                      className={`page-item ${page === currentPage ? "active" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        className="page-link"
+                        onClick={() => setCurrentPage(page)}
+                        aria-current={
+                          page === currentPage ? "page" : undefined
+                        }
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  ),
+                )}
+                <li
+                  className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="page-link"
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          ) : null}
         </div>
       </div>
 
