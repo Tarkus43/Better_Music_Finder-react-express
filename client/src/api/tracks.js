@@ -70,3 +70,51 @@ export async function toggleTrackFavorite(id) {
   }
   return body;
 }
+
+/**
+ * @param {Record<string, unknown>} payload
+ * @returns {Promise<any>}
+ */
+export async function createTrack(payload) {
+  const res = await fetch("/tracks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const body = await parseJsonResponse(res);
+  if (!res.ok) {
+    const err = new Error(
+      (body && typeof body === "object" && (body.error || body.message)) ||
+        res.statusText,
+    );
+    if (body && typeof body === "object" && Array.isArray(body.errors)) {
+      err.errors = body.errors;
+    }
+    throw err;
+  }
+  return body;
+}
+
+/**
+ * @param {{ name: string; description: string; parent_id?: number | null }} payload
+ * @returns {Promise<any>}
+ */
+export async function createGenre(payload) {
+  const res = await fetch("/genres", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const body = await parseJsonResponse(res);
+  if (!res.ok) {
+    const err = new Error(
+      (body && typeof body === "object" && (body.error || body.message)) ||
+        res.statusText,
+    );
+    if (body && typeof body === "object" && Array.isArray(body.errors)) {
+      err.errors = body.errors;
+    }
+    throw err;
+  }
+  return body;
+}
