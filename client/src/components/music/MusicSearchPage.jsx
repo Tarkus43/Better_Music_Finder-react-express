@@ -8,6 +8,7 @@ import { buildTracksQuery } from "../../utils/buildTracksQuery.js"
 import AddGenreModal from "./AddGenreModal.jsx"
 import AddSongModal from "./AddSongModal.jsx"
 import AdvancedFilters from "./AdvancedFilters.jsx"
+import MusicPagination from "./MusicPagination.jsx"
 import SongCard from "./SongCard.jsx"
 
 const PAGE_SIZE = 4
@@ -295,55 +296,11 @@ export default function MusicSearchPage() {
           ))}
 
           {!loading && tracks.length > PAGE_SIZE ? (
-            <nav aria-label="Search results pages" className="mt-3">
-              <ul className="pagination pagination-sm justify-content-center mb-0">
-                <li
-                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-                >
-                  <button
-                    type="button"
-                    className="page-link"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <li
-                      key={page}
-                      className={`page-item ${page === currentPage ? "active" : ""}`}
-                    >
-                      <button
-                        type="button"
-                        className="page-link"
-                        onClick={() => setCurrentPage(page)}
-                        aria-current={
-                          page === currentPage ? "page" : undefined
-                        }
-                      >
-                        {page}
-                      </button>
-                    </li>
-                  ),
-                )}
-                <li
-                  className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
-                >
-                  <button
-                    type="button"
-                    className="page-link"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            <MusicPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           ) : null}
         </div>
       </div>

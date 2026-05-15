@@ -7,3 +7,14 @@
 body {
   min-height: 100vh;
 }
+
+.music-pagination__page {
+  min-width: 2.25rem;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+  font-weight: 600;
+}
+
+.music-pagination__list .btn:disabled {
+  opacity: 0.45;
+}
