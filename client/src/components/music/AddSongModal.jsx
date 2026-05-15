@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react"
-import Alert from "react-bootstrap/Alert"
-import Button from "react-bootstrap/Button"
-import Col from "react-bootstrap/Col"
-import Form from "react-bootstrap/Form"
-import Modal from "react-bootstrap/Modal"
-import Row from "react-bootstrap/Row"
 import { createTrack } from "../../api/tracks.js"
+import Modal from "./Modal.jsx"
 
-export default function AddSongModal({ show, onHide, genres, onCreated }) {
+export default function AddSongModal({ show, onClose, genres, onCreated }) {
   const [title, setTitle] = useState("")
   const [artist, setArtist] = useState("")
   const [genreId, setGenreId] = useState("")
@@ -31,7 +26,7 @@ export default function AddSongModal({ show, onHide, genres, onCreated }) {
 
   const handleClose = () => {
     setError("")
-    onHide()
+    onClose()
   }
 
   const handleSubmit = async (e) => {
@@ -85,167 +80,204 @@ export default function AddSongModal({ show, onHide, genres, onCreated }) {
   }
 
   return (
-    <Modal show={show} onHide={handleClose} size="lg" centered scrollable>
-      <Modal.Header closeButton>
-        <Modal.Title>Add song</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Body>
+    <Modal show={show} onClose={handleClose} title="Add song" size="lg">
+      <form onSubmit={handleSubmit}>
+        <div className="modal-body">
           {!genres.length ? (
-            <Alert variant="warning" className="small py-2">
+            <div className="alert alert-warning small py-2" role="alert">
               Add at least one genre before creating a track.
-            </Alert>
+            </div>
           ) : null}
           {error ? (
-            <Alert variant="danger" className="py-2 small">
+            <div className="alert alert-danger py-2 small" role="alert">
               {error}
-            </Alert>
+            </div>
           ) : null}
-          <Row className="g-3">
-            <Col md={6}>
-              <Form.Group controlId="song-title">
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="song-artist">
-                <Form.Label>Artist</Form.Label>
-                <Form.Control
-                  value={artist}
-                  onChange={(e) => setArtist(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-genre">
-                <Form.Label>Genre</Form.Label>
-                <Form.Select
-                  value={genreId}
-                  onChange={(e) => setGenreId(e.target.value)}
-                  required
-                >
-                  {genres.map((g) => (
-                    <option key={g.id} value={String(g.id)}>
-                      {g.name}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-year">
-                <Form.Label>Release year</Form.Label>
-                <Form.Control
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  required
-                  maxLength={4}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-album">
-                <Form.Label>Album</Form.Label>
-                <Form.Control
-                  value={album}
-                  onChange={(e) => setAlbum(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-duration">
-                <Form.Label>Duration (seconds)</Form.Label>
-                <Form.Control
-                  type="number"
-                  min={1}
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-tempo">
-                <Form.Label>BPM</Form.Label>
-                <Form.Control
-                  type="number"
-                  min={1}
-                  value={tempo}
-                  onChange={(e) => setTempo(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="song-popularity">
-                <Form.Label>Popularity</Form.Label>
-                <Form.Control
-                  type="number"
-                  min={1}
-                  value={popularity}
-                  onChange={(e) => setPopularity(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="song-language">
-                <Form.Label>Language</Form.Label>
-                <Form.Control
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="song-mood">
-                <Form.Label>Mood</Form.Label>
-                <Form.Control
-                  value={mood}
-                  onChange={(e) => setMood(e.target.value)}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={12}>
-              <Form.Check
-                type="checkbox"
-                id="song-explicit"
-                label="Explicit"
-                checked={isExplicit}
-                onChange={(e) => setIsExplicit(e.target.checked)}
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label htmlFor="song-title" className="form-label">
+                Title
+              </label>
+              <input
+                id="song-title"
+                type="text"
+                className="form-control"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
               />
-              <Form.Check
-                type="checkbox"
-                id="song-lyrics"
-                label="Lyrics available"
-                checked={lyricsAvailable}
-                onChange={(e) => setLyricsAvailable(e.target.checked)}
+            </div>
+            <div className="col-md-6">
+              <label htmlFor="song-artist" className="form-label">
+                Artist
+              </label>
+              <input
+                id="song-artist"
+                type="text"
+                className="form-control"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                required
               />
-            </Col>
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" type="button" onClick={handleClose}>
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-genre" className="form-label">
+                Genre
+              </label>
+              <select
+                id="song-genre"
+                className="form-select"
+                value={genreId}
+                onChange={(e) => setGenreId(e.target.value)}
+                required
+              >
+                {genres.map((g) => (
+                  <option key={g.id} value={String(g.id)}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-year" className="form-label">
+                Release year
+              </label>
+              <input
+                id="song-year"
+                type="text"
+                className="form-control"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                required
+                maxLength={4}
+              />
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-album" className="form-label">
+                Album
+              </label>
+              <input
+                id="song-album"
+                type="text"
+                className="form-control"
+                value={album}
+                onChange={(e) => setAlbum(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-duration" className="form-label">
+                Duration (seconds)
+              </label>
+              <input
+                id="song-duration"
+                type="number"
+                className="form-control"
+                min={1}
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-tempo" className="form-label">
+                BPM
+              </label>
+              <input
+                id="song-tempo"
+                type="number"
+                className="form-control"
+                min={1}
+                value={tempo}
+                onChange={(e) => setTempo(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-md-4">
+              <label htmlFor="song-popularity" className="form-label">
+                Popularity
+              </label>
+              <input
+                id="song-popularity"
+                type="number"
+                className="form-control"
+                min={1}
+                value={popularity}
+                onChange={(e) => setPopularity(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-md-6">
+              <label htmlFor="song-language" className="form-label">
+                Language
+              </label>
+              <input
+                id="song-language"
+                type="text"
+                className="form-control"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-md-6">
+              <label htmlFor="song-mood" className="form-label">
+                Mood
+              </label>
+              <input
+                id="song-mood"
+                type="text"
+                className="form-control"
+                value={mood}
+                onChange={(e) => setMood(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-12">
+              <div className="form-check">
+                <input
+                  id="song-explicit"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={isExplicit}
+                  onChange={(e) => setIsExplicit(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="song-explicit">
+                  Explicit
+                </label>
+              </div>
+              <div className="form-check">
+                <input
+                  id="song-lyrics"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={lyricsAvailable}
+                  onChange={(e) => setLyricsAvailable(e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="song-lyrics">
+                  Lyrics available
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={handleClose}
+          >
             Cancel
-          </Button>
-          <Button
-            variant="primary"
+          </button>
+          <button
             type="submit"
+            className="btn btn-primary"
             disabled={saving || !genres.length}
           >
             {saving ? "Saving…" : "Create"}
-          </Button>
-        </Modal.Footer>
-      </Form>
+          </button>
+        </div>
+      </form>
     </Modal>
   )
 }

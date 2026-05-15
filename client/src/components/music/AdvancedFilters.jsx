@@ -1,9 +1,3 @@
-import Button from "react-bootstrap/Button"
-import Card from "react-bootstrap/Card"
-import Col from "react-bootstrap/Col"
-import Form from "react-bootstrap/Form"
-import Row from "react-bootstrap/Row"
-
 const sortOptions = [
   { value: "popularity", label: "Sort: popularity" },
   { value: "title", label: "Sort: title" },
@@ -17,46 +11,37 @@ const explicitOptions = [
   { value: "false", label: "Explicit: no" },
 ]
 
+const inputClass = "form-control rounded-3 border-secondary-subtle"
+const selectClass = "form-select rounded-3 border-secondary-subtle"
+
 export default function AdvancedFilters({
-  draft,
-  setDraft,
-  onApply,
+  filters,
+  setFilters,
   onReset,
   genres,
   moodOptions,
   languageOptions,
 }) {
-  const patch = (partial) => setDraft((d) => ({ ...d, ...partial }))
+  const patch = (partial) => setFilters((d) => ({ ...d, ...partial }))
 
   return (
-    <Card className="mb-4 border-secondary-subtle shadow-sm">
-      <Card.Header className="bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 border-secondary-subtle">
+    <div className="card mb-4 border-secondary-subtle shadow-sm">
+      <div className="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 border-secondary-subtle">
         <span className="fw-bold">Advanced Filters</span>
-        <div className="d-flex gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            className="rounded-pill px-3"
-            onClick={onApply}
-          >
-            Apply
-          </Button>
-          <Button
-            type="button"
-            variant="outline-secondary"
-            className="rounded-pill px-3"
-            onClick={onReset}
-          >
-            Reset
-          </Button>
-        </div>
-      </Card.Header>
-      <Card.Body className="pt-3">
-        <Row className="g-3 mb-3">
-          <Col xs={12} sm={6} lg={4} xl={2}>
-            <Form.Select
-              className="rounded-3 border-secondary-subtle"
-              value={draft.genre}
+        <button
+          type="button"
+          className="btn btn-outline-secondary rounded-pill px-3"
+          onClick={onReset}
+        >
+          Reset
+        </button>
+      </div>
+      <div className="card-body pt-3">
+        <div className="row g-3 mb-3">
+          <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+            <select
+              className={selectClass}
+              value={filters.genre}
               onChange={(e) => patch({ genre: e.target.value })}
             >
               <option value="">Any genre</option>
@@ -65,58 +50,59 @@ export default function AdvancedFilters({
                   {g.name}
                 </option>
               ))}
-            </Form.Select>
-          </Col>
-          <Col xs={12} sm={6} lg={4} xl={2}>
-            <Form.Control
-              className="rounded-3 border-secondary-subtle"
+            </select>
+          </div>
+          <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+            <input
+              type="text"
+              className={inputClass}
               placeholder="Artist name"
-              value={draft.artist}
+              value={filters.artist}
               onChange={(e) => patch({ artist: e.target.value })}
             />
-          </Col>
-          <Col xs={6} sm={6} lg={4} xl={2}>
-            <Form.Control
-              className="rounded-3 border-secondary-subtle"
+          </div>
+          <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
+            <input
               type="number"
+              className={inputClass}
               placeholder="Year from"
-              value={draft.yearFrom}
+              value={filters.yearFrom}
               onChange={(e) => patch({ yearFrom: e.target.value })}
             />
-          </Col>
-          <Col xs={6} sm={6} lg={4} xl={2}>
-            <Form.Control
-              className="rounded-3 border-secondary-subtle"
+          </div>
+          <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
+            <input
               type="number"
+              className={inputClass}
               placeholder="Year to"
-              value={draft.yearTo}
+              value={filters.yearTo}
               onChange={(e) => patch({ yearTo: e.target.value })}
             />
-          </Col>
-          <Col xs={6} sm={6} lg={4} xl={2}>
-            <Form.Control
-              className="rounded-3 border-secondary-subtle"
+          </div>
+          <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
+            <input
               type="number"
+              className={inputClass}
               placeholder="BPM from"
-              value={draft.bpmFrom}
+              value={filters.bpmFrom}
               onChange={(e) => patch({ bpmFrom: e.target.value })}
             />
-          </Col>
-          <Col xs={6} sm={6} lg={4} xl={2}>
-            <Form.Control
-              className="rounded-3 border-secondary-subtle"
+          </div>
+          <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
+            <input
               type="number"
+              className={inputClass}
               placeholder="BPM to"
-              value={draft.bpmTo}
+              value={filters.bpmTo}
               onChange={(e) => patch({ bpmTo: e.target.value })}
             />
-          </Col>
-        </Row>
-        <Row className="g-3">
-          <Col xs={12} sm={6} md={3}>
-            <Form.Select
-              className="rounded-3 border-secondary-subtle"
-              value={draft.mood}
+          </div>
+        </div>
+        <div className="row g-3">
+          <div className="col-12 col-sm-6 col-md-3">
+            <select
+              className={selectClass}
+              value={filters.mood}
               onChange={(e) => patch({ mood: e.target.value })}
             >
               <option value="">Any mood</option>
@@ -125,12 +111,12 @@ export default function AdvancedFilters({
                   {m}
                 </option>
               ))}
-            </Form.Select>
-          </Col>
-          <Col xs={12} sm={6} md={3}>
-            <Form.Select
-              className="rounded-3 border-secondary-subtle"
-              value={draft.language}
+            </select>
+          </div>
+          <div className="col-12 col-sm-6 col-md-3">
+            <select
+              className={selectClass}
+              value={filters.language}
               onChange={(e) => patch({ language: e.target.value })}
             >
               <option value="">Any language</option>
@@ -139,12 +125,12 @@ export default function AdvancedFilters({
                   {lang}
                 </option>
               ))}
-            </Form.Select>
-          </Col>
-          <Col xs={12} sm={6} md={3}>
-            <Form.Select
-              className="rounded-3 border-secondary-subtle"
-              value={draft.sort}
+            </select>
+          </div>
+          <div className="col-12 col-sm-6 col-md-3">
+            <select
+              className={selectClass}
+              value={filters.sort}
               onChange={(e) => patch({ sort: e.target.value })}
             >
               {sortOptions.map((o) => (
@@ -152,12 +138,12 @@ export default function AdvancedFilters({
                   {o.label}
                 </option>
               ))}
-            </Form.Select>
-          </Col>
-          <Col xs={12} sm={6} md={3}>
-            <Form.Select
-              className="rounded-3 border-secondary-subtle"
-              value={draft.explicit}
+            </select>
+          </div>
+          <div className="col-12 col-sm-6 col-md-3">
+            <select
+              className={selectClass}
+              value={filters.explicit}
               onChange={(e) => patch({ explicit: e.target.value })}
             >
               {explicitOptions.map((o) => (
@@ -165,10 +151,10 @@ export default function AdvancedFilters({
                   {o.label}
                 </option>
               ))}
-            </Form.Select>
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

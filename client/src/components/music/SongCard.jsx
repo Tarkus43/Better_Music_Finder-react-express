@@ -1,6 +1,3 @@
-import Button from "react-bootstrap/Button"
-import Card from "react-bootstrap/Card"
-
 function StarIcon({ filled }) {
   return (
     <svg
@@ -46,15 +43,16 @@ export default function SongCard({
   const genreLabel = genreName || "—"
   const moodLabel = mood || "—"
   const langLabel = language || "—"
+  const fav = Boolean(is_favorite)
 
   return (
-    <Card className="mb-3 border-secondary-subtle shadow-sm">
-      <Card.Body className="d-flex justify-content-between align-items-start gap-3">
+    <div className="card mb-3 border-secondary-subtle shadow-sm">
+      <div className="card-body d-flex justify-content-between align-items-start gap-3">
         <div className="min-w-0">
-          <Card.Title className="h5 mb-2">{title}</Card.Title>
-          <Card.Text className="text-muted small mb-2">
+          <h3 className="h5 card-title mb-2">{title}</h3>
+          <p className="text-muted small mb-2">
             {artist} &middot; {year} &middot; {bpmLabel}
-          </Card.Text>
+          </p>
           <div className="d-flex flex-wrap gap-2">
             <span className="badge rounded-pill border border-secondary-subtle text-secondary fw-normal text-capitalize">
               {genreLabel}
@@ -67,20 +65,21 @@ export default function SongCard({
             </span>
           </div>
         </div>
-        <Button
+        <button
           type="button"
-          variant={is_favorite ? "outline-warning" : "outline-secondary"}
-          className={`rounded-3 flex-shrink-0 px-2 py-2 ${is_favorite ? "text-warning border-warning" : ""}`}
-          aria-pressed={Boolean(is_favorite)}
-          aria-label={
-            is_favorite ? "Remove from favorites" : "Add to favorites"
-          }
+          className={`btn rounded-3 flex-shrink-0 px-2 py-2 ${
+            fav
+              ? "btn-outline-warning text-warning border-warning"
+              : "btn-outline-secondary"
+          }`}
+          aria-pressed={fav}
+          aria-label={fav ? "Remove from favorites" : "Add to favorites"}
           disabled={favoriteBusy}
           onClick={onToggleFavorite}
         >
-          <StarIcon filled={Boolean(is_favorite)} />
-        </Button>
-      </Card.Body>
-    </Card>
+          <StarIcon filled={fav} />
+        </button>
+      </div>
+    </div>
   )
 }

@@ -1,9 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
-import Alert from "react-bootstrap/Alert"
-import Button from "react-bootstrap/Button"
-import Collapse from "react-bootstrap/Collapse"
-import Container from "react-bootstrap/Container"
-import Form from "react-bootstrap/Form"
 import {
   fetchGenres,
   fetchTracks,
@@ -28,6 +23,8 @@ const defaultFilters = {
   explicit: "any",
 }
 
+const FILTER_DEBOUNCE_MS = 400
+
 function SearchStarIcon() {
   return (
     <svg
@@ -48,8 +45,8 @@ function SearchStarIcon() {
 
 export default function MusicSearchPage() {
   const [searchInput, setSearchInput] = useState("")
-  const [appliedFilters, setAppliedFilters] = useState(defaultFilters)
-  const [draftFilters, setDraftFilters] = useState(defaultFilters)
+  const [committedSearch, setCommittedSearch] = useState("")
+  const [filters, setFilters] = useState(defaultFilters)
   const [showAdvanced, setShowAdvanced] = useState(true)
   const [genres, setGenres] = useState([])
   const [moodOptions, setMoodOptions] = useState([])
@@ -71,12 +68,12 @@ export default function MusicSearchPage() {
     return m
   }, [genres])
 
-  const fetchTrackList = useCallback(async (searchStr, applied) => {
+  const fetchTrackList = useCallback(async (searchStr, filterState) => {
     setLoading(true)
     setListError("")
     setFilterErrors([])
     try {
-      const query = buildTracksQuery(searchStr, applied)
+      const query = buildTracksQuery(searchStr, filterState)
       const list = await fetchTracks(query)
       setTracks(Array.isArray(list) ? list : [])
     } catch (e) {
@@ -110,61 +107,22 @@ export default function MusicSearchPage() {
   }, [])
 
   useEffect(() => {
-    let cancelled = false
+    void reloadGenresAndMeta()
+  }, [reloadGenresAndMeta])
 
-    const boot = async () => {
-      try {
-        const g = await fetchGenres()
-        if (!cancelled) {
-          setGenres(Array.isArray(g) ? g : [])
-          setMetaError("")
-        }
-      } catch {
-        if (!cancelled) {
-          setGenres([])
-          setMetaError("Could not load genres.")
-        }
-      }
-
-      try {
-        const all = await fetchTracks({})
-        if (!cancelled) {
-          const moods = [...new Set(all.map((t) => t.mood).filter(Boolean))].sort()
-          const langs = [...new Set(all.map((t) => t.language).filter(Boolean))].sort()
-          setMoodOptions(moods)
-          setLanguageOptions(langs)
-        }
-      } catch {
-        if (!cancelled) {
-          setMoodOptions([])
-          setLanguageOptions([])
-        }
-      }
-
-      if (!cancelled) {
-        await fetchTrackList("", defaultFilters)
-      }
-    }
-
-    void boot()
-    return () => {
-      cancelled = true
-    }
-  }, [fetchTrackList])
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      void fetchTrackList(committedSearch, filters)
+    }, FILTER_DEBOUNCE_MS)
+    return () => window.clearTimeout(id)
+  }, [filters, committedSearch, fetchTrackList])
 
   const handleSearchClick = () => {
-    const q = searchInput.trim()
-    void fetchTrackList(q, appliedFilters)
+    setCommittedSearch(searchInput.trim())
   }
 
-  const handleApply = () => {
-    const next = { ...draftFilters }
-    setAppliedFilters(next)
-    void fetchTrackList(searchInput.trim(), next)
-  }
-
-  const handleReset = () => {
-    setDraftFilters({ ...defaultFilters })
+  const handleResetFilters = () => {
+    setFilters({ ...defaultFilters })
   }
 
   const handleToggleFavorite = async (id) => {
@@ -188,26 +146,26 @@ export default function MusicSearchPage() {
 
   return (
     <div className="bg-body-secondary min-vh-100 py-4">
-      <Container>
+      <div className="container">
         <div className="border border-secondary-subtle rounded-4 bg-white p-3 p-md-4 shadow-sm">
           {metaError ? (
-            <Alert variant="warning" className="py-2 small">
+            <div className="alert alert-warning py-2 small" role="alert">
               {metaError}
-            </Alert>
+            </div>
           ) : null}
           {listError ? (
-            <Alert variant="danger" className="py-2 small">
+            <div className="alert alert-danger py-2 small" role="alert">
               {listError}
-            </Alert>
+            </div>
           ) : null}
           {filterErrors.length ? (
-            <Alert variant="danger" className="py-2 small">
+            <div className="alert alert-danger py-2 small" role="alert">
               <ul className="mb-0 ps-3">
                 {filterErrors.map((err, i) => (
                   <li key={`${i}-${err}`}>{err}</li>
                 ))}
               </ul>
-            </Alert>
+            </div>
           ) : null}
 
           <div className="d-flex flex-column flex-md-row gap-2 mb-3">
@@ -218,8 +176,9 @@ export default function MusicSearchPage() {
               >
                 <SearchStarIcon />
               </span>
-              <Form.Control
-                className="rounded-pill border-secondary-subtle py-2 ps-5"
+              <input
+                type="text"
+                className="form-control rounded-pill border-secondary-subtle py-2 ps-5"
                 placeholder="Search by title (e.g. giant steps)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -232,61 +191,56 @@ export default function MusicSearchPage() {
                 aria-label="Search songs"
               />
             </div>
-            <Button
+            <button
               type="button"
-              variant="primary"
-              className="rounded-pill px-4 align-self-stretch"
+              className="btn btn-primary rounded-pill px-4 align-self-stretch"
               disabled={loading}
               onClick={handleSearchClick}
             >
               Search
-            </Button>
+            </button>
           </div>
 
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div className="d-flex flex-wrap gap-2">
-              <Button
+              <button
                 type="button"
-                variant="outline-secondary"
-                className="rounded-pill"
+                className="btn btn-outline-secondary rounded-pill"
                 onClick={() => setShowSongModal(true)}
               >
                 Add song
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant="outline-secondary"
-                className="rounded-pill"
+                className="btn btn-outline-secondary rounded-pill"
                 onClick={() => setShowGenreModal(true)}
               >
                 Add genre
-              </Button>
+              </button>
             </div>
-            <Button
+            <button
               type="button"
-              variant="primary"
-              className="rounded-pill"
+              className="btn btn-primary rounded-pill"
               aria-expanded={showAdvanced}
               aria-controls="advanced-filters-panel"
               onClick={() => setShowAdvanced((v) => !v)}
             >
               Filters
-            </Button>
+            </button>
           </div>
 
-          <Collapse in={showAdvanced}>
+          {showAdvanced ? (
             <div id="advanced-filters-panel">
               <AdvancedFilters
-                draft={draftFilters}
-                setDraft={setDraftFilters}
-                onApply={handleApply}
-                onReset={handleReset}
+                filters={filters}
+                setFilters={setFilters}
+                onReset={handleResetFilters}
                 genres={genres}
                 moodOptions={moodOptions}
                 languageOptions={languageOptions}
               />
             </div>
-          </Collapse>
+          ) : null}
 
           <div className="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
             <h2 className="h5 fw-bold mb-0">Search Results</h2>
@@ -301,7 +255,7 @@ export default function MusicSearchPage() {
 
           {!loading && !listError && tracks.length === 0 ? (
             <p className="text-muted small">
-              {searchInput.trim()
+              {committedSearch.trim()
                 ? "No tracks match your search. Try another title or clear the search box and click Search."
                 : "No tracks in the database yet. Add a genre, then add a song."}
             </p>
@@ -320,20 +274,20 @@ export default function MusicSearchPage() {
             />
           ))}
         </div>
-      </Container>
+      </div>
 
       <AddGenreModal
         show={showGenreModal}
-        onHide={() => setShowGenreModal(false)}
+        onClose={() => setShowGenreModal(false)}
         onCreated={reloadGenresAndMeta}
       />
       <AddSongModal
         show={showSongModal}
-        onHide={() => setShowSongModal(false)}
+        onClose={() => setShowSongModal(false)}
         genres={genres}
         onCreated={async () => {
           await reloadGenresAndMeta()
-          await fetchTrackList(searchInput.trim(), appliedFilters)
+          await fetchTrackList(committedSearch, filters)
         }}
       />
     </div>
