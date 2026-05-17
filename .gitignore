@@ -27,3 +27,5 @@ server_checklist.md
 client_checklist.md
 
 .cursor
+
+docs/*

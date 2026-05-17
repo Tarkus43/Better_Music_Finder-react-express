@@ -1,6 +1,28 @@
+const DIGIT_NAV_KEYS = new Set([
+  "Backspace",
+  "Delete",
+  "Tab",
+  "Escape",
+  "Enter",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+])
+
 /** Strip separators and non-digits; e.g. "100,000" → "100000". */
 export function sanitizeDigitsOnly(raw) {
   return String(raw ?? "").replace(/[^\d]/g, "")
+}
+
+/** Block letter/symbol keys; paste still sanitized via onChange. */
+export function blockNonDigitKeys(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return
+  if (DIGIT_NAV_KEYS.has(e.key)) return
+  if (/^\d$/.test(e.key)) return
+  e.preventDefault()
 }
 
 /** True when value is a non-empty string of digits only. */

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { createTrack } from "../../api/tracks.js"
 import {
+  blockNonDigitKeys,
   isDigitsOnly,
   lowercaseTextInput,
   normalizeTextField,
@@ -215,6 +216,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={year}
                 onChange={onDigitsChange(setYear)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 maxLength={4}
                 inputMode="numeric"
@@ -244,6 +246,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={duration}
                 onChange={onDigitsChange(setDuration)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"
@@ -259,6 +262,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={tempo}
                 onChange={onDigitsChange(setTempo)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"
@@ -274,6 +278,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={popularity}
                 onChange={onDigitsChange(setPopularity)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"

@@ -1,3 +1,8 @@
+import {
+  blockNonDigitKeys,
+  sanitizeDigitsOnly,
+} from "../../utils/formInput.js"
+
 const sortOptions = [
   { value: "popularity", label: "Sort: popularity" },
   { value: "title", label: "Sort: title" },
@@ -23,6 +28,19 @@ export default function AdvancedFilters({
   languageOptions,
 }) {
   const patch = (partial) => setFilters((d) => ({ ...d, ...partial }))
+
+  const onDigitFilter =
+    (field) =>
+    (e) => {
+      patch({ [field]: sanitizeDigitsOnly(e.target.value) })
+    }
+
+  const digitInputProps = {
+    type: "text",
+    inputMode: "numeric",
+    pattern: "\\d*",
+    onKeyDown: blockNonDigitKeys,
+  }
 
   return (
     <div className="card mb-4 border-secondary-subtle shadow-sm">
@@ -63,38 +81,38 @@ export default function AdvancedFilters({
           </div>
           <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
             <input
-              type="number"
+              {...digitInputProps}
               className={inputClass}
               placeholder="Year from"
               value={filters.yearFrom}
-              onChange={(e) => patch({ yearFrom: e.target.value })}
+              onChange={onDigitFilter("yearFrom")}
             />
           </div>
           <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
             <input
-              type="number"
+              {...digitInputProps}
               className={inputClass}
               placeholder="Year to"
               value={filters.yearTo}
-              onChange={(e) => patch({ yearTo: e.target.value })}
+              onChange={onDigitFilter("yearTo")}
             />
           </div>
           <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
             <input
-              type="number"
+              {...digitInputProps}
               className={inputClass}
               placeholder="BPM from"
               value={filters.bpmFrom}
-              onChange={(e) => patch({ bpmFrom: e.target.value })}
+              onChange={onDigitFilter("bpmFrom")}
             />
           </div>
           <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
             <input
-              type="number"
+              {...digitInputProps}
               className={inputClass}
               placeholder="BPM to"
               value={filters.bpmTo}
-              onChange={(e) => patch({ bpmTo: e.target.value })}
+              onChange={onDigitFilter("bpmTo")}
             />
           </div>
         </div>
