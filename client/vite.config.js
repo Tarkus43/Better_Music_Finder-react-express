@@ -4,4 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      "/tracks": { target: "http://localhost:3000", changeOrigin: true },
+      "/genres": { target: "http://localhost:3000", changeOrigin: true },
+    },
+  },
 })

@@ -1,0 +1,20 @@
+/* Load after bootstrap/dist/css — mockup-style primary and page feel */
+:root {
+  --bs-primary: #2563eb;
+  --bs-primary-rgb: 37, 99, 235;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.music-pagination__page {
+  min-width: 2.25rem;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+  font-weight: 600;
+}
+
+.music-pagination__list .btn:disabled {
+  opacity: 0.45;
+}
