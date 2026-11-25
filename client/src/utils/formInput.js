@@ -1,12 +1,68 @@
+const DIGIT_NAV_KEYS = new Set([
+  "Backspace",
+  "Delete",
+  "Tab",
+  "Escape",
+  "Enter",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+])
+
 /** Strip separators and non-digits; e.g. "100,000" → "100000". */
 export function sanitizeDigitsOnly(raw) {
   return String(raw ?? "").replace(/[^\d]/g, "")
+}
+
+/** Block letter/symbol keys; paste still sanitized via onChange. */
+export function blockNonDigitKeys(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return
+  if (DIGIT_NAV_KEYS.has(e.key)) return
+  if (/^\d$/.test(e.key)) return
+  e.preventDefault()
 }
 
 /** True when value is a non-empty string of digits only. */
 export function isDigitsOnly(value) {
   const s = String(value ?? "")
   return s.length > 0 && /^\d+$/.test(s)
+}
+
+const RELEASE_YEAR_MIN = 1
+const RELEASE_YEAR_MAX_DIGITS = 4
+
+/**
+ * @param {string|number} value
+ * @param {{ label?: string }} [opts]
+ * @returns {{ ok: true, value: string } | { ok: false, error: string }}
+ */
+export function validateReleaseYear(value, opts = {}) {
+  const { label = "Release year" } = opts
+  const digits = sanitizeDigitsOnly(value)
+  const currentYear = new Date().getFullYear()
+
+  if (!isDigitsOnly(digits) || digits.length > RELEASE_YEAR_MAX_DIGITS) {
+    return {
+      ok: false,
+      error: `${label} must be 1–${RELEASE_YEAR_MAX_DIGITS} digits (${RELEASE_YEAR_MIN}–${currentYear}).`,
+    }
+  }
+
+  const year = Number.parseInt(digits, 10)
+  if (year < RELEASE_YEAR_MIN) {
+    return { ok: false, error: `${label} must be at least ${RELEASE_YEAR_MIN}.` }
+  }
+  if (year > currentYear) {
+    return {
+      ok: false,
+      error: `${label} cannot be in the future (max ${currentYear}).`,
+    }
+  }
+
+  return { ok: true, value: String(year) }
 }
 
 /**

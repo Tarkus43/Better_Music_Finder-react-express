@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { createTrack } from "../../api/tracks.js"
 import {
-  isDigitsOnly,
+  blockNonDigitKeys,
   lowercaseTextInput,
   normalizeTextField,
   parseIntegerField,
   sanitizeDigitsOnly,
+  validateReleaseYear,
 } from "../../utils/formInput.js"
 import Modal from "./Modal.jsx"
 
@@ -72,12 +73,13 @@ export default function AddSongModal({
         return
       }
 
-      const y = sanitizeDigitsOnly(year)
-      if (!isDigitsOnly(y) || !/^(19|20)\d{2}$/.test(y)) {
-        setError("Year must be a four-digit year (1900–2099), digits only.")
+      const yearResult = validateReleaseYear(year)
+      if (!yearResult.ok) {
+        setError(yearResult.error)
         setSaving(false)
         return
       }
+      const y = yearResult.value
 
       const durationResult = parseIntegerField(duration, {
         label: "Duration",
@@ -215,6 +217,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={year}
                 onChange={onDigitsChange(setYear)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 maxLength={4}
                 inputMode="numeric"
@@ -244,6 +247,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={duration}
                 onChange={onDigitsChange(setDuration)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"
@@ -259,6 +263,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={tempo}
                 onChange={onDigitsChange(setTempo)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"
@@ -274,6 +279,7 @@ export default function AddSongModal({
                 className="form-control"
                 value={popularity}
                 onChange={onDigitsChange(setPopularity)}
+                onKeyDown={blockNonDigitKeys}
                 required
                 inputMode="numeric"
                 pattern="\d*"
