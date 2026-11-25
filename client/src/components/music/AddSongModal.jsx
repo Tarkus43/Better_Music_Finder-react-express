@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import { createTrack } from "../../api/tracks.js"
 import {
   blockNonDigitKeys,
-  isDigitsOnly,
   lowercaseTextInput,
   normalizeTextField,
   parseIntegerField,
   sanitizeDigitsOnly,
+  validateReleaseYear,
 } from "../../utils/formInput.js"
 import Modal from "./Modal.jsx"
 
@@ -73,12 +73,13 @@ export default function AddSongModal({
         return
       }
 
-      const y = sanitizeDigitsOnly(year)
-      if (!isDigitsOnly(y) || !/^(19|20)\d{2}$/.test(y)) {
-        setError("Year must be a four-digit year (1900–2099), digits only.")
+      const yearResult = validateReleaseYear(year)
+      if (!yearResult.ok) {
+        setError(yearResult.error)
         setSaving(false)
         return
       }
+      const y = yearResult.value
 
       const durationResult = parseIntegerField(duration, {
         label: "Duration",

@@ -31,6 +31,40 @@ export function isDigitsOnly(value) {
   return s.length > 0 && /^\d+$/.test(s)
 }
 
+const RELEASE_YEAR_MIN = 1
+const RELEASE_YEAR_MAX_DIGITS = 4
+
+/**
+ * @param {string|number} value
+ * @param {{ label?: string }} [opts]
+ * @returns {{ ok: true, value: string } | { ok: false, error: string }}
+ */
+export function validateReleaseYear(value, opts = {}) {
+  const { label = "Release year" } = opts
+  const digits = sanitizeDigitsOnly(value)
+  const currentYear = new Date().getFullYear()
+
+  if (!isDigitsOnly(digits) || digits.length > RELEASE_YEAR_MAX_DIGITS) {
+    return {
+      ok: false,
+      error: `${label} must be 1–${RELEASE_YEAR_MAX_DIGITS} digits (${RELEASE_YEAR_MIN}–${currentYear}).`,
+    }
+  }
+
+  const year = Number.parseInt(digits, 10)
+  if (year < RELEASE_YEAR_MIN) {
+    return { ok: false, error: `${label} must be at least ${RELEASE_YEAR_MIN}.` }
+  }
+  if (year > currentYear) {
+    return {
+      ok: false,
+      error: `${label} cannot be in the future (max ${currentYear}).`,
+    }
+  }
+
+  return { ok: true, value: String(year) }
+}
+
 /**
  * @param {string|number} value
  * @param {{ label?: string, min?: number, max?: number, allowEmpty?: boolean }} [opts]
