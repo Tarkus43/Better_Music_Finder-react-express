@@ -29,3 +29,4 @@ client_checklist.md
 .cursor
 
 docs/*
+.claude/settings.local.json
